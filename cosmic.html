@@ -148,15 +148,21 @@ $(document).ready(function() {
 			$("#dlist").val(images[(idx + 1) % images.length]).change();
 			console.debug("Current Image: "+ images[indexTrack]);
 			var results = getMarkers(images[indexTrack])
-			var dotY = results[0]
-			var dotX = results[1]
-			console.debug("Y Value: " + dotY)
-			console.debug("X Value: " + dotX)
-			var marker = document.createElement('div');
-			$(marker).attr('class', 'marker')
-				.css('top', dotY)
-				.css('left', dotX);
-			document.getElementById("imageToSwap").appendChild(marker);
+			console.debug("Position List: " + JSON.stringify(results));
+			console.debug("-----------------Loop Started------------------");
+			var rSize = Object.keys(results.point).length
+			var x = 0;
+			console.debug("SIZE: " + rSize)
+			while (x < rSize){
+				var marker = document.createElement('div');
+				console.debug("Position Values: " + results.point[x].X + " " + results.point[x].Y);
+				$(marker).attr('class', 'marker')
+					.css('top', results.point[x].Y)
+					.css('left', results.point[x].X);
+				document.getElementById("imageToSwap").appendChild(marker);
+				x++
+			console.debug("-----------------Loop Ended------------------");
+			}
 		});
 
 
@@ -173,16 +179,23 @@ $(document).ready(function() {
 			var images = get_images();
 			var idx = images.indexOf($("#dlist").val());
 			$("#dlist").val(images[(idx + images.length - 1) % images.length]).change();
-			console.debug("Current Image: "+ images[indexTrack]);
+			console.debug("Current Image: " + images[indexTrack]);
 			var results = getMarkers(images[indexTrack])
-			var dotY = results[0]
-			var dotX = results[1]
-			var marker = document.createElement('div');
-			console.debug(dotY, dotX)
-			$(marker).attr('class', 'marker')
-				.css('top', dotY)
-				.css('left', dotX);
-			document.getElementById("imageToSwap").appendChild(marker);
+			console.debug("Position List: " + JSON.stringify(results));
+			console.debug("-----------------Loop Started------------------");
+			var rSize = Object.keys(results.point).length
+			var x = 0;
+			console.debug("SIZE: " + rSize)
+			while (x < rSize){
+				var marker = document.createElement('div');
+				console.debug("Position Values: " + results.point[x].X + " " + results.point[x].Y);
+				$(marker).attr('class', 'marker')
+					.css('top', results.point[x].Y)
+					.css('left', results.point[x].X);
+				document.getElementById("imageToSwap").appendChild(marker);
+				x++
+			console.debug("-----------------Loop Ended------------------");
+			}
 		});
 
 
@@ -202,21 +215,34 @@ $(document).ready(function() {
 		});
 
 		function getMarkers(imgName){
-		console.debug("-----------------Function Called------------------");
-		for (i=0; i<Object.keys(dotRecords).length; i++){
+			console.debug("-----------------Function Called------------------");
+			var pointList = {
+				point: []
+			};
+			var dSize = Object.keys(dotRecords.images).length
+			var i = 0;
+			while (i < dSize) {
+				console.debug(i)
+				console.debug("Images in Array " + Object.keys(dotRecords.images).length)
 				if (dotRecords.images[i].Name == imgName){
 					console.debug("-----------------Match Found------------------");
 					console.debug("Name Matched: " + dotRecords.images[i].Name + " VS. " + imgName);
-					console.debug("Y Value: " + dotRecords.Y)
-					console.debug("X Value: " + dotRecords.X)
-					return [dotRecords.Y, dotRecords.X]
+					console.debug("Y Value: " + dotRecords.images[i].Y)
+					console.debug("X Value: " + dotRecords.images[i].X)
+					console.debug("Array: " + JSON.stringify(dotRecords.images))
+					pointList.point.push({ 
+						"Y" : dotRecords.images[i].Y,
+						"X" : dotRecords.images[i].X
+						});
 					}
 				else{
 					console.debug("-----------------Not Match------------------");
 					$("#imageToSwap").children().remove(); // only allows you to add one marker
 					}
-		};
-		console.debug("-----------------Function End------------------");
+				i++
+			}
+			console.debug("-----------------Function End------------------");
+			return pointList;
 		}
 
 		$("#end_show").click(function() {

@@ -52,93 +52,139 @@ function get_local_images() {
 	})
 }
 
-
+var dotRecords = {
+    images: []
+};
+var indexTrack = -1
 var intervalId;
 var coords = new Array();
 var imageJson = {name: "", coordinates: coords};
 
 $(document).ready(function() {
+	
+	
+	var select = document.getElementById("dlist");
+	get_images().forEach(function(image, index){
+		var opt = document.createElement('option');
+	opt.value = image;
+	opt.innerHTML = index+1;
+	select.appendChild(opt);
+	});
 
-	  var select = document.getElementById("dlist");
-	  get_images().forEach(function(image, index){
-			var opt = document.createElement('option');
-	    opt.value = image;
-	    opt.innerHTML = index+1;
-	    select.appendChild(opt);
-		});
 
-		// This is the list for the images to select
+	// This is the list for the images to select
     $("#dlist").change(	function () {
 			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")');
 		});
 
-		$("#clear_all_markers").click(function() {
-			$("#imageToSwap").children().remove(); // only allows you to add one marker
+
+	$("#clear_all_markers").click(function() {
+		$("#imageToSwap").children().remove(); // only allows you to add one marker
+	});
+
+
+	// Every time you click on the image, gets the position x and position y for the
+	// location for which you clicked on. Also adds a red marker at that location.
+	$("#imageToSwap").click(function (e) {
+		if (!$("#dlist").val()) return;
+		console.debug()
+		var subtractX = $(this).position().left;
+		var subtractY = $(this).position().top;
+		var xPosition = e.clientX - subtractX;
+		var yPosition = e.clientY - subtractY;
+		var position = {x: posX, y: posY}
+		//listofPositions.push(position)
+		console.debug("-----------------Start------------------");
+		console.debug("e.pageY: " + e.pageY);
+		console.debug("e.pageX: " + e.pageX);
+		console.debug("Pos Top: " + $(this).position().top);
+		console.debug("Pos Left: " + $(this).position().left);
+
+		// creating a JSON object
+		var images = get_images();
+		var idx = images.indexOf($("#dlist").val());
+		imageJson.name = images[idx];
+		var newCoordinates = imageJson.coordinates;
+		var coordinate = {x: xPosition, y: yPosition};
+		newCoordinates.push(coordinate);
+		imageJson.coordinates = newCoordinates;
+		console.debug("Dot Added To Image: " + imageJson.name);
+
+		var posY = (e.pageY - $(this).position().top - 5)
+		var posX = (e.pageX - $(this).position().left - 5)
+
+		console.debug("-----------------Position Calculated------------------");
+
+		dotRecords.images.push({ 
+        "Name" : images[idx],
+		"Y" : posY,
+        "X" : posX
+    	});
+
+		//-------------------------------
+
+		var marker = document.createElement('div');
+		$(marker).attr('class', 'marker')
+				.css('top', posY)
+				.css('left', posX);
+		this.appendChild(marker);
+		console.debug("Y Value: " + posY)
+		console.debug("X Value: " + posX)
+		console.debug("-----------------Marker Created------------------");
+		$(marker).contextmenu(function(){
+			// delete marker (=this)
+			$(marker).remove();
+			return false;
 		});
-		// Every time you click on the image, gets the position x and position y for the
-		// location for which you clicked on. Also adds a red marker at that location.
-		$("#imageToSwap").click(function (e) {
-			if (!$("#dlist").val()) return;
-			console.debug()
-			var subtractX = $(this).position().left;
-			var subtractY = $(this).position().top;
-			var posX = e.clientX - subtractX;
-      var posY = e.clientY - subtractY;
-			var position = {x: posX, y: posY}
-			//listofPositions.push(position)
-			console.debug("posX: " + posX);
-			console.debug("posY: " + posY);
+	});
 
 
-			// creating a JSON object
-			var images = get_images();
-			var idx = images.indexOf($("#dlist").val());
-			imageJson.name = images[idx];
-			var newCoordinates = imageJson.coordinates;
-			var coordinate = {x: posX, y: posY};
-			newCoordinates.push(coordinate);
-			imageJson.coordinates = newCoordinates;
-			console.debug("name: "+imageJson.name);
-
-			//
-			// var jsonNameELement = {name : images[idx]};
-			// var jsonElement = {x: posX, y: posY};
-			// jsonVariables.push(jsonElement);
-			// jsonVariables.push({name: "name"})
-
-			//result["'" + images[idx] + "'"] = {"x :" + posX + "," + "y :" + posY};
-
-			var marker = document.createElement('div');
-			$(marker).attr('class', 'marker')
-					.css('top', e.pageY - $(this).position().top - 5)
-					.css('left', e.pageX - $(this).position().left - 5);
-			this.appendChild(marker);
-
-			$(marker).contextmenu(function(){
-				// delete marker (=this)
- 				$(marker).remove();
-				return false;
-			});
-		});
 		// allows you to increment ny one image
 		$("#forward_button").click(function (){
+			console.debug("-----------------Forward------------------");
+			indexTrack++
 			var images = get_images();
 			var idx = images.indexOf($("#dlist").val());
 			$("#dlist").val(images[(idx + 1) % images.length]).change();
+			console.debug("Current Image: "+ images[indexTrack]);
+			var results = getMarkers(images[indexTrack])
+			var dotY = results[0]
+			var dotX = results[1]
+			console.debug("Y Value: " + dotY)
+			console.debug("X Value: " + dotX)
+			var marker = document.createElement('div');
+			$(marker).attr('class', 'marker')
+				.css('top', dotY)
+				.css('left', dotX);
+			document.getElementById("imageToSwap").appendChild(marker);
 		});
+
 
 		// sends the json object
 		$("#submit_button").click(function () {
 			var myJSON = JSON.stringify(imageJson);
-			alert(myJSON);
 		});
+
 
 		// decrement ny one image
 		$("#backward_button").click(function () {
+			console.debug("-----------------Backwards------------------");
+			indexTrack--
 			var images = get_images();
 			var idx = images.indexOf($("#dlist").val());
 			$("#dlist").val(images[(idx + images.length - 1) % images.length]).change();
+			console.debug("Current Image: "+ images[indexTrack]);
+			var results = getMarkers(images[indexTrack])
+			var dotY = results[0]
+			var dotX = results[1]
+			var marker = document.createElement('div');
+			console.debug(dotY, dotX)
+			$(marker).attr('class', 'marker')
+				.css('top', dotY)
+				.css('left', dotX);
+			document.getElementById("imageToSwap").appendChild(marker);
 		});
+
 
 		// delete specified image
 		$("#delete_image_button").click(function() {
@@ -149,20 +195,41 @@ $(document).ready(function() {
 			//$("#dlist").val(images[idx]).splice(idx, 1);
 		});
 
+
 		// start forward slideshow
 		$("#start_show").click(function() {
 			intervalId = setInterval(function() {$("#forward_button").click()}, 500);
 		});
 
+		function getMarkers(imgName){
+		console.debug("-----------------Function Called------------------");
+		for (i=0; i<Object.keys(dotRecords).length; i++){
+				if (dotRecords.images[i].Name == imgName){
+					console.debug("-----------------Match Found------------------");
+					console.debug("Name Matched: " + dotRecords.images[i].Name + " VS. " + imgName);
+					console.debug("Y Value: " + dotRecords.Y)
+					console.debug("X Value: " + dotRecords.X)
+					return [dotRecords.Y, dotRecords.X]
+					}
+				else{
+					console.debug("-----------------Not Match------------------");
+					$("#imageToSwap").children().remove(); // only allows you to add one marker
+					}
+		};
+		console.debug("-----------------Function End------------------");
+		}
+
 		$("#end_show").click(function() {
 			clearInterval(intervalId);
 		});
+
 
 		// play slideshow in reverse direction
 		$("#start_back_show").click(function() {
 			//alert("hi");
 			intervalId = setInterval(function() {$("#backward_button").click()}, 500);
 		});
+		
 
 		$("#stop_back_show").click(function() {
 			clearInterval(intervalId);

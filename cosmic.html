@@ -1,4 +1,7 @@
 <html>
+<head>
+<meta charset="utf-8"/>
+</head>
 <style>
 #nav_pane {
 	float: left;
@@ -55,6 +58,8 @@ function get_local_images() {
 var dotRecords = {
     images: []
 };
+var maxIndex = 19
+var minIndex = 0
 var indexTrack = -1
 var intervalId;
 var coords = new Array();
@@ -141,27 +146,32 @@ $(document).ready(function() {
 
 		// allows you to increment ny one image
 		$("#forward_button").click(function (){
-			console.debug("-----------------Forward------------------");
-			indexTrack++
-			var images = get_images();
-			var idx = images.indexOf($("#dlist").val());
-			$("#dlist").val(images[(idx + 1) % images.length]).change();
-			console.debug("Current Image: "+ images[indexTrack]);
-			var results = getMarkers(images[indexTrack])
-			console.debug("Position List: " + JSON.stringify(results));
-			console.debug("-----------------Loop Started------------------");
-			var rSize = Object.keys(results.point).length
-			var x = 0;
-			console.debug("SIZE: " + rSize)
-			while (x < rSize){
-				var marker = document.createElement('div');
-				console.debug("Position Values: " + results.point[x].X + " " + results.point[x].Y);
-				$(marker).attr('class', 'marker')
-					.css('top', results.point[x].Y)
-					.css('left', results.point[x].X);
-				document.getElementById("imageToSwap").appendChild(marker);
-				x++
-			console.debug("-----------------Loop Ended------------------");
+			if ((indexTrack+1)>maxIndex){
+				document.getElementById("forward_button").disabled = true; 
+			}
+			else{
+				document.getElementById("backward_button").disabled = false; 
+				console.debug("-----------------Forward------------------");
+				indexTrack++
+				var images = get_images();
+				var idx = images.indexOf($("#dlist").val());
+				$("#dlist").val(images[(idx + 1) % images.length]).change();
+				console.debug("Current Image: "+ images[indexTrack]);
+				var results = getMarkers(images[indexTrack])
+				console.debug("Position List: " + JSON.stringify(results));
+				console.debug("-----------------Loop Started------------------");
+				var rSize = Object.keys(results.point).length
+				var x = 0;
+				while (x < rSize){
+					var marker = document.createElement('div');
+					console.debug("Position Values: " + results.point[x].X + " " + results.point[x].Y);
+					$(marker).attr('class', 'marker')
+						.css('top', results.point[x].Y)
+						.css('left', results.point[x].X);
+					document.getElementById("imageToSwap").appendChild(marker);
+					x++
+				console.debug("-----------------Loop Ended------------------");
+				}
 			}
 		});
 
@@ -174,27 +184,33 @@ $(document).ready(function() {
 
 		// decrement ny one image
 		$("#backward_button").click(function () {
-			console.debug("-----------------Backwards------------------");
-			indexTrack--
-			var images = get_images();
-			var idx = images.indexOf($("#dlist").val());
-			$("#dlist").val(images[(idx + images.length - 1) % images.length]).change();
-			console.debug("Current Image: " + images[indexTrack]);
-			var results = getMarkers(images[indexTrack])
-			console.debug("Position List: " + JSON.stringify(results));
-			console.debug("-----------------Loop Started------------------");
-			var rSize = Object.keys(results.point).length
-			var x = 0;
-			console.debug("SIZE: " + rSize)
-			while (x < rSize){
-				var marker = document.createElement('div');
-				console.debug("Position Values: " + results.point[x].X + " " + results.point[x].Y);
-				$(marker).attr('class', 'marker')
-					.css('top', results.point[x].Y)
-					.css('left', results.point[x].X);
-				document.getElementById("imageToSwap").appendChild(marker);
-				x++
-			console.debug("-----------------Loop Ended------------------");
+			if ((indexTrack-1)<minIndex){
+				document.getElementById("backward_button").disabled = true; 
+			}
+			else{
+				document.getElementById("forward_button").disabled = false; 
+				console.debug("-----------------Backwards------------------");
+				indexTrack--
+				var images = get_images();
+				var idx = images.indexOf($("#dlist").val());
+				$("#dlist").val(images[(idx + images.length - 1) % images.length]).change();
+				console.debug("Current Image: " + images[indexTrack]);
+				var results = getMarkers(images[indexTrack])
+				console.debug("Position List: " + JSON.stringify(results));
+				console.debug("-----------------Loop Started------------------");
+				var rSize = Object.keys(results.point).length
+				var x = 0;
+				console.debug("SIZE: " + rSize)
+				while (x < rSize){
+					var marker = document.createElement('div');
+					console.debug("Position Values: " + results.point[x].X + " " + results.point[x].Y);
+					$(marker).attr('class', 'marker')
+						.css('top', results.point[x].Y)
+						.css('left', results.point[x].X);
+					document.getElementById("imageToSwap").appendChild(marker);
+					x++
+				console.debug("-----------------Loop Ended------------------");
+				}
 			}
 		});
 
@@ -203,6 +219,8 @@ $(document).ready(function() {
 		$("#delete_image_button").click(function() {
 			var images = get_images();
 			var idx = images.indexOf($("#dlist").val());
+			maxIndex = maxIndex - 1;
+			minIndex = minIndex + 1;
 			$("#forward_button").click();
 			$("#dlist :nth-child(" + (idx+1) + ")").remove();
 			//$("#dlist").val(images[idx]).splice(idx, 1);

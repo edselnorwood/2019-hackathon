@@ -1,5 +1,6 @@
 <html>
 <head>
+<link rel="stylesheet" type="text/css" href="styles.css" media="screen" />
 <meta charset="utf-8"/>
 </head>
 <style>
@@ -15,9 +16,14 @@
 #imageToSwap {
 	height: 400px;
 	width: 400px;
-	position:relative;
-	top:0px;
-	left:0px;
+}
+#prevImage {
+	height: 100px;
+	width: 100px;
+}
+#nxtImage {
+	height: 100px;
+	width: 100px;
 }
 #dlist {
 	min-width:70%;
@@ -28,6 +34,50 @@
 	height:10px;
 	position:absolute;
 	border-radius: 5px;
+}
+div.menu {
+	padding: 10px 24px; /* Some padding */
+	cursor: pointer; /* Pointer/hand icon */
+	width: 20%; /* Set a width if needed */
+	position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.btn-menu:hover {
+	background-color: teal;
+}
+
+.btn-menu {
+	background-color: #c28e3a; /* Green background */
+	border: 1px solid darkblue; /* Green border */
+	color: white; /* White text */
+	margin: 20 10 20 10;
+	display: block;
+	height: 50;
+	width: 250;
+
+}
+
+body {
+  background-color:  #7b888d ;
+}
+
+select {
+	display: table-row;
+	position: absolute;
+	height: 20px;
+	background-color: #c28e3a;
+    bottom: 0px;
+    right: 0px;
+}
+select option {
+    display:table-cell;
+	position: absolute;
+	background: f43b21;
+    bottom: 0px;
+	width: 100px;
+    right: 0px;
 }
 
 </style>
@@ -58,7 +108,10 @@ function get_local_images() {
 var dotRecords = {
     images: []
 };
+
 var maxIndex = 19
+var images = get_images();
+var idx = images.indexOf($("#dlist").val());
 var minIndex = 0
 var indexTrack = -1
 var intervalId;
@@ -78,8 +131,16 @@ $(document).ready(function() {
 
 
 	// This is the list for the images to select
-    $("#dlist").change(	function () {
+    $("#dlist").change( function (event) {
 			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")');
+			console.debug("-_-"+ idx)
+			if (indexTrack<0){
+				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+2] + '")');
+			}
+			else{
+				$("#prevImage").css('background-image', 'url("' + images[indexTrack-1] + '")');
+				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")');
+			}
 		});
 
 
@@ -106,8 +167,8 @@ $(document).ready(function() {
 		console.debug("Pos Left: " + $(this).position().left);
 
 		// creating a JSON object
-		var images = get_images();
-		var idx = images.indexOf($("#dlist").val());
+		
+		idx = images.indexOf($("#dlist").val());
 		imageJson.name = images[idx];
 		var newCoordinates = imageJson.coordinates;
 		var coordinate = {x: xPosition, y: yPosition};
@@ -155,6 +216,9 @@ $(document).ready(function() {
 				indexTrack++
 				var images = get_images();
 				var idx = images.indexOf($("#dlist").val());
+				this.prevURL = images[(idx + 1) % images.length];
+				this.nxtURL = images[(idx + 1) % images.length];
+				var _self = this;
 				$("#dlist").val(images[(idx + 1) % images.length]).change();
 				console.debug("Current Image: "+ images[indexTrack]);
 				var results = getMarkers(images[indexTrack])
@@ -284,24 +348,33 @@ $(document).ready(function() {
 	<body>
 			<div id="nav_pane">
 				<select id="dlist" size="20">
-
+					
 				</select>
 			</div>
 
 
 
 			<div id="work_pane">
-				<div id="imageToSwap"></div>
-	 			<input type="button" value="Forward One Image" id="forward_button" />
-	 			<input type="button" value="Backward One Image" id="backward_button" />
-	 			<input type="button" value="Start Slide Show" id="start_show" />
-	 			<input type="button" value="Stop Slide Show" id="end_show" />
-				<input type="button" value="Start Backwards Slide Show" id="start_back_show" />
-				<input type="button" value="Stop Backwards Slide Show" id="stop_back_show" />
-				<input type="button" value="Remove All Markers" id="clear_all_markers" />
-				<input type="button" value="Submit" id="submit_button" />
-				<input type="button" value="Delete Image" id="delete_image_button" />
-
+				<table>
+					<th></th>
+					<tr>
+					<td>	<div id="prevImage"></div>	</td>
+					<td>	<div id="imageToSwap"></div>	</td>
+					<td>	<div id="nxtImage"></div>	</td>
+					</tr>
+				</table>
+				
+				<div id="btnList" class="menu">
+					<input class="btn-menu" type="button" value="Forward One Image" id="forward_button" />
+					<input class="btn-menu" type="button" value="Backward One Image" id="backward_button" />
+					<input class="btn-menu" type="button" value="Start Slide Show" id="start_show" />
+					<input class="btn-menu" type="button" value="Stop Slide Show" id="end_show" />
+					<input class="btn-menu" type="button" value="Start Backwards Slide Show" id="start_back_show" />
+					<input class="btn-menu" type="button" value="Stop Backwards Slide Show" id="stop_back_show" />
+					<input class="btn-menu" type="button" value="Remove All Markers" id="clear_all_markers" />
+					<input class="btn-menu" type="button" value="Submit" id="submit_button" />
+					<input class="btn-menu" type="button" value="Delete Image" id="delete_image_button" />
+				</div>
 			</div>
 
 	</body>

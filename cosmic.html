@@ -1,29 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="styles.css" media="screen" />
+<link rel="stylesheet" href="alert/dist/sweetalert.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <meta charset="utf-8"/>
 </head>
 <style>
 #nav_pane {
 	float: left;
 	width: 200px;
-	margin: 1em;
+	margin: 0px 30px 30px 30px;
 }
 #work_pane {
 	float: left;
-	margin: 1em;
+	margin: 30px;
 }
 #imageToSwap {
 	height: 400px;
 	width: 400px;
+	display: inline-block;
 }
 #prevImage {
-	height: 100px;
-	width: 100px;
+	height: 400px;
+	width: 400px;
+	display: inline-block;
+	opacity: 0.5;
 }
 #nxtImage {
-	height: 100px;
-	width: 100px;
+	height: 400px;
+	width: 400px;
+	display: inline-block;
+	opacity: 0.5;
 }
 #dlist {
 	min-width:70%;
@@ -44,42 +52,68 @@ div.menu {
     right: 0px;
 }
 
-.btn-menu:hover {
-	background-color: teal;
-}
-
-.btn-menu {
-	background-color: #c28e3a; /* Green background */
-	border: 1px solid darkblue; /* Green border */
-	color: white; /* White text */
-	margin: 20 10 20 10;
-	display: block;
-	height: 50;
-	width: 250;
-
-}
-
 body {
-  background-color:  #7b888d ;
+	background-color: #51d0de;
+	font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 select {
 	display: table-row;
 	position: absolute;
 	height: 20px;
-	background-color: #c28e3a;
+	background-color: #bf4aa8;
     bottom: 0px;
     right: 0px;
 }
 select option {
     display:table-cell;
 	position: absolute;
-	background: f43b21;
+	border: solid #bf4aa8 .5px;
+	background: #d9d9d9;
     bottom: 0px;
 	width: 100px;
     right: 0px;
 }
 
+.img-div {
+	margin: 0 0 30 0;
+}
+
+.btn-group input {
+  background-color: #bf4aa8; /* Green background */
+  border: 1px solid green; /* Green border */
+  color: white; /* White text */
+  width: 200px:
+  cursor: pointer; /* Pointer/hand icon */
+  position: relative;
+}
+
+/* Add a background color on hover */
+.btn-group input:hover {
+  background-color: teal;
+}
+
+.title-bar{
+	color: #bf4aa8;
+	background-color: #d9d9d9;
+	text-rendering: optimizelegibility;
+	font-family: "Corben", Georgia, Times, serif;
+	font-size: 20px; 
+	font-weight: 400; 
+	line-height: 30px; 
+	font-weight: 700;
+	line-height: 40px;
+	margin: 0 0 24px;
+	width: 100%; 
+	text-align: center; 
+	text-transform: uppercase;
+	position: absolute;
+	border: solid #bf4aa8;
+	top: 5px;
+	left: 5px;
+	right: 5px;
+	padding: 0 15 0 15;
+}
 </style>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
@@ -132,14 +166,13 @@ $(document).ready(function() {
 
 	// This is the list for the images to select
     $("#dlist").change( function (event) {
-			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")');
-			console.debug("-_-"+ idx)
+			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', '100% 100%');
 			if (indexTrack<0){
-				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+2] + '")');
+				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")').css('background-size', '100% 100%');
 			}
 			else{
-				$("#prevImage").css('background-image', 'url("' + images[indexTrack-1] + '")');
-				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")');
+				$("#prevImage").css('background-image', 'url("' + images[indexTrack-1] + '")').css('background-size', '100% 100%');
+				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")').css('background-size', '100% 100%');
 			}
 		});
 
@@ -241,10 +274,29 @@ $(document).ready(function() {
 
 
 		// sends the json object
-		$("#submit_button").click(function () {
-			var myJSON = JSON.stringify(imageJson);
+		$("#download_file_button").click(function () {
+			var textToFile = JSON.stringify(dotRecords.images);
+			download('image-markers.txt', textToFile);
 		});
 
+		function download(filename, text) {
+			var element = document.createElement('a');
+			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			element.setAttribute('download', filename);
+
+			element.style.display = 'none';
+			document.body.appendChild(element);
+
+			element.click();
+
+			document.body.removeChild(element);
+		}
+
+		// sends the json object
+		$("#submit_button").click(function () {
+			var myJSON = JSON.stringify(imageJson);
+			alert(myJSON);
+		});
 
 		// decrement ny one image
 		$("#backward_button").click(function () {
@@ -347,7 +399,7 @@ $(document).ready(function() {
 </script>
 	<body>
 			<div id="nav_pane">
-				<select id="dlist" size="20">
+				<select disabled id="dlist" size="20">
 					
 				</select>
 			</div>
@@ -355,25 +407,28 @@ $(document).ready(function() {
 
 
 			<div id="work_pane">
+				<h2 class="title-bar">Graphic Observation and Analysis Tool (G.O.A.T.)</h2>
+
 				<table>
 					<th></th>
 					<tr>
-					<td>	<div id="prevImage"></div>	</td>
-					<td>	<div id="imageToSwap"></div>	</td>
-					<td>	<div id="nxtImage"></div>	</td>
+					<td>	<div class="img-div" id="prevImage"></div>	</td>
+					<td>	<div class="img-div" id="imageToSwap"></div>	</td>
+					<td>	<div class="img-div" id="nxtImage"></div>	</td>
 					</tr>
 				</table>
 				
-				<div id="btnList" class="menu">
-					<input class="btn-menu" type="button" value="Forward One Image" id="forward_button" />
-					<input class="btn-menu" type="button" value="Backward One Image" id="backward_button" />
-					<input class="btn-menu" type="button" value="Start Slide Show" id="start_show" />
-					<input class="btn-menu" type="button" value="Stop Slide Show" id="end_show" />
-					<input class="btn-menu" type="button" value="Start Backwards Slide Show" id="start_back_show" />
-					<input class="btn-menu" type="button" value="Stop Backwards Slide Show" id="stop_back_show" />
-					<input class="btn-menu" type="button" value="Remove All Markers" id="clear_all_markers" />
-					<input class="btn-menu" type="button" value="Submit" id="submit_button" />
-					<input class="btn-menu" type="button" value="Delete Image" id="delete_image_button" />
+				<div id="btnList" style="width:100%;" class="btn-group">
+					<input class="btn-group" style="height:50px;" type="button" value="Forward One Image" id="forward_button" />
+					<input class="btn-group" style="height:50px;" type="button" value="Backward One Image" id="backward_button" />
+					<input class="btn-group" style="height:50px;" type="button" value="Start Slide Show" id="start_show" />
+					<input class="btn-group" style="height:50px;" type="button" value="Stop Slide Show" id="end_show" />
+					<input class="btn-group" style="height:50px;" type="button" value="Start Backwards Slide Show" id="start_back_show" />
+					<input class="btn-group" style="height:50px;" type="button" value="Stop Backwards Slide Show" id="stop_back_show" />
+					<input class="btn-group" style="height:50px;" type="button" value="Remove All Markers" id="clear_all_markers" />
+					<input class="btn-group" style="height:50px;" type="button" value="Submit" id="submit_button" />
+					<input class="btn-group" style="height:50px;" type="button" value="Delete Image" id="delete_image_button" />
+					<input class="btn-group" style="height:50px;" type="button" value="Download" id="download_file_button" />
 				</div>
 			</div>
 

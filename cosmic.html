@@ -8,34 +8,42 @@
 </head>
 <style>
 #nav_pane {
-	float: left;
-	width: 200px;
-	margin: 0px 30px 30px 30px;
 }
+
 #work_pane {
-	float: left;
-	margin: 30px;
+	position: fixed;
+	width:100%;
 }
+
 #imageToSwap {
+	-moz-box-shadow: 0 0 10px #ccc;
+	-webkit-box-shadow: 0 0 10px #ccc;
+	box-shadow: 0 0 10px #ccc;
 	height: 400px;
 	width: 400px;
 	display: inline-block;
 }
+
 #prevImage {
-	height: 400px;
-	width: 400px;
+	-moz-box-shadow: 0 0 10px #ccc;
+	-webkit-box-shadow: 0 0 10px #ccc;
+	box-shadow: 0 0 10px #ccc;
 	display: inline-block;
 	opacity: 0.5;
 }
+
 #nxtImage {
-	height: 400px;
-	width: 400px;
+	-moz-box-shadow: 0 0 10px #ccc;
+	-webkit-box-shadow: 0 0 10px #ccc;
+	box-shadow: 0 0 10px #ccc;
 	display: inline-block;
 	opacity: 0.5;
 }
+
 #dlist {
-	min-width:70%;
+	margin: 0 0 2px 0;
 }
+
 .marker {
 	background-color: red;
 	width: 10px;
@@ -43,18 +51,18 @@
 	position:absolute;
 	border-radius: 5px;
 }
-div.menu {
-	padding: 10px 24px; /* Some padding */
-	cursor: pointer; /* Pointer/hand icon */
-	width: 20%; /* Set a width if needed */
-	position: absolute;
-    top: 0px;
-    right: 0px;
-}
 
 body {
-	background-color: #51d0de;
+	background-color: white;
+	width: 100%;
+	height: 100%;
 	font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+html, body, {
+    position:fixed;
+	width:100%;
+	height:100%;
 }
 
 select {
@@ -64,56 +72,70 @@ select {
 	background-color: #bf4aa8;
     bottom: 0px;
     right: 0px;
+	left: 0px;
 }
 select option {
     display:table-cell;
 	position: absolute;
 	border: solid #bf4aa8 .5px;
-	background: #d9d9d9;
+	background-color: #d9d9d9;
     bottom: 0px;
 	width: 100px;
     right: 0px;
+	left: 0px;
 }
-
-.img-div {
-	margin: 0 0 30 0;
+table {
+	width:100%;
+}
+td.img {
+	text-align:center;
+	width: 400px;
+	height: 400px;
 }
 
 .btn-group input {
-  background-color: #bf4aa8; /* Green background */
-  border: 1px solid green; /* Green border */
-  color: white; /* White text */
-  width: 200px:
-  cursor: pointer; /* Pointer/hand icon */
-  position: relative;
+	border-radius: 12px;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+	background-color: #bf4aa8; /* Green background */
+	border: 1px solid green; /* Green border */
+	color: white; /* White text */
+	width: 200px:
+	cursor: pointer; /* Pointer/hand icon */
+	position: relative;
 }
 
-/* Add a background color on hover */
+.btn-group input:active{
+	box-shadow: 0 5px #626;
+	transform: translateY(4px);
+}
+
+#btnList {
+	width: 100%;
+}
+
 .btn-group input:hover {
-  background-color: teal;
+  	background-color: teal;
 }
 
 .title-bar{
 	color: #bf4aa8;
 	background-color: #d9d9d9;
-	text-rendering: optimizelegibility;
-	font-family: "Corben", Georgia, Times, serif;
-	font-size: 20px; 
-	font-weight: 400; 
-	line-height: 30px; 
-	font-weight: 700;
-	line-height: 40px;
-	margin: 0 0 24px;
-	width: 100%; 
+	margin: 0px;
+	width: 100%;
 	text-align: center; 
 	text-transform: uppercase;
-	position: absolute;
+	position: fixed;
 	border: solid #bf4aa8;
-	top: 5px;
-	left: 5px;
-	right: 5px;
+	right:0px;
+	left:0px;
 	padding: 0 15 0 15;
 }
+
+table {
+	top: 0;
+	right: 0;
+}
+
 </style>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
@@ -144,6 +166,9 @@ var dotRecords = {
 };
 
 var maxIndex = 19
+var curZoom = 100
+var imgXpos = 0
+var imgYpos = 0
 var images = get_images();
 var idx = images.indexOf($("#dlist").val());
 var minIndex = 0
@@ -166,16 +191,50 @@ $(document).ready(function() {
 
 	// This is the list for the images to select
     $("#dlist").change( function (event) {
-			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', '100% 100%');
+			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
 			if (indexTrack<0){
-				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")').css('background-size', '100% 100%');
+				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
 			}
 			else{
-				$("#prevImage").css('background-image', 'url("' + images[indexTrack-1] + '")').css('background-size', '100% 100%');
-				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")').css('background-size', '100% 100%');
+				$("#prevImage").css('background-image', 'url("' + images[indexTrack-1] + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
+				$("#nxtImage").css('background-image', 'url("' + images[indexTrack+1] + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
 			}
 		});
 
+	$("#right_button").click(function() {
+		imgXpos = imgXpos - 10;
+		$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
+	});
+
+	$("#left_button").click(function() {
+		imgXpos = imgXpos + 10;
+		$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
+	});
+
+	$("#up_button").click(function() {
+		imgYpos = imgYpos + 10;
+		$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
+	});
+
+	$("#down_button").click(function() {
+		imgYpos = imgYpos - 10;
+		$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');
+	});
+
+	$("#zoom_in_button").click(function() {
+		curZoom = curZoom + 10;
+		$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');;
+	});
+
+	$("#zoom_out_button").click(function() {
+		if (curZoom==100) {
+			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');;
+		}
+		else {
+			curZoom = curZoom - 10;
+			$("#imageToSwap").css('background-image', 'url("' + $("#dlist").val() + '")').css('background-size', ''+curZoom+'% '+curZoom+'%').css('background-position', ''+imgXpos+'px '+imgYpos+'px');;
+		}
+	});
 
 	$("#clear_all_markers").click(function() {
 		$("#imageToSwap").children().remove(); // only allows you to add one marker
@@ -209,8 +268,8 @@ $(document).ready(function() {
 		imageJson.coordinates = newCoordinates;
 		console.debug("Dot Added To Image: " + imageJson.name);
 
-		var posY = (e.pageY - $(this).position().top - 5)
-		var posX = (e.pageX - $(this).position().left - 5)
+		var posY = (e.pageY - $(this).position().top-12)
+		var posX = (e.pageX - $(this).position().left)
 
 		console.debug("-----------------Position Calculated------------------");
 
@@ -244,6 +303,9 @@ $(document).ready(function() {
 				document.getElementById("forward_button").disabled = true; 
 			}
 			else{
+				curZoom = 100;
+				imgXpos = 0;
+				imgYpos = 0;
 				document.getElementById("backward_button").disabled = false; 
 				console.debug("-----------------Forward------------------");
 				indexTrack++
@@ -279,6 +341,17 @@ $(document).ready(function() {
 			download('image-markers.txt', textToFile);
 		});
 
+		document.onkeydown = function(e) {
+			switch (e.keyCode) {
+				case 37:
+					$("#backward_button").click();
+					break;
+				case 39:
+					$("#forward_button").click();
+					break;
+			}
+		};
+
 		function download(filename, text) {
 			var element = document.createElement('a');
 			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -304,6 +377,9 @@ $(document).ready(function() {
 				document.getElementById("backward_button").disabled = true; 
 			}
 			else{
+				curZoom = 100;
+				imgXpos = 0;
+				imgYpos = 0;
 				document.getElementById("forward_button").disabled = false; 
 				console.debug("-----------------Backwards------------------");
 				indexTrack--
@@ -398,40 +474,49 @@ $(document).ready(function() {
 
 </script>
 	<body>
+			<div id="work_pane">
+				<h2 class="title-bar">Graphic Observation and Analysis Tool (G.O.A.T.)</h2>
+
+				<table style="margin:60px 0 0 0;">
+					<th></th>
+					<tr>
+					<td class="img">	<div class="img-div" id="prevImage" style="height:200px; width:200px; margin: auto;"></div>	</td>
+					<td class="img">	<div class="img-div" id="imageToSwap" style="margin: auto;"></div>	</td>
+					<td class="img">	<div class="img-div" id="nxtImage" style="height:200px; width:200px; margin: auto;"></div>	</td>
+					</tr>
+				</table>
+				
+				<div id="btnList"class="btn-group">
+				<table>
+					<th></th>
+					<tr>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Forward One Image" id="forward_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Backward One Image" id="backward_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Start Slide Show" id="start_show" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Stop Slide Show" id="end_show" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Start Backwards Slide Show" id="start_back_show" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Stop Backwards Slide Show" id="stop_back_show" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Remove All Markers" id="clear_all_markers" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Submit" id="submit_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Delete Image" id="delete_image_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Download" id="download_file_button" />	</td>
+					</tr>
+					<tr>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Zoom In" id="zoom_in_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Zoom Out" id="zoom_out_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Pan Up" id="up_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Pan Down" id="down_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Pan Left" id="left_button" />	</td>
+						<td> <input class="btn-group" style="height:50px;" type="button" value="Pan Right" id="right_button" />	</td>
+					</tr>
+				</table>
+				</div>
+			</div>
+
 			<div id="nav_pane">
 				<select disabled id="dlist" size="20">
 					
 				</select>
 			</div>
-
-
-
-			<div id="work_pane">
-				<h2 class="title-bar">Graphic Observation and Analysis Tool (G.O.A.T.)</h2>
-
-				<table>
-					<th></th>
-					<tr>
-					<td>	<div class="img-div" id="prevImage"></div>	</td>
-					<td>	<div class="img-div" id="imageToSwap"></div>	</td>
-					<td>	<div class="img-div" id="nxtImage"></div>	</td>
-					</tr>
-				</table>
-				
-				<div id="btnList" style="width:100%;" class="btn-group">
-					<input class="btn-group" style="height:50px;" type="button" value="Forward One Image" id="forward_button" />
-					<input class="btn-group" style="height:50px;" type="button" value="Backward One Image" id="backward_button" />
-					<input class="btn-group" style="height:50px;" type="button" value="Start Slide Show" id="start_show" />
-					<input class="btn-group" style="height:50px;" type="button" value="Stop Slide Show" id="end_show" />
-					<input class="btn-group" style="height:50px;" type="button" value="Start Backwards Slide Show" id="start_back_show" />
-					<input class="btn-group" style="height:50px;" type="button" value="Stop Backwards Slide Show" id="stop_back_show" />
-					<input class="btn-group" style="height:50px;" type="button" value="Remove All Markers" id="clear_all_markers" />
-					<input class="btn-group" style="height:50px;" type="button" value="Submit" id="submit_button" />
-					<input class="btn-group" style="height:50px;" type="button" value="Delete Image" id="delete_image_button" />
-					<input class="btn-group" style="height:50px;" type="button" value="Download" id="download_file_button" />
-				</div>
-			</div>
-
 	</body>
-
 </html>
